@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>New Year 2026 💖</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+*{box-sizing:border-box}
+
+body{
+  margin:0;height:100vh;background:black;
+  font-family:Poppins,sans-serif;color:white;overflow:hidden;
+}
+
+/* CARD */
+.card{
+  position:relative;z-index:5;
+  width:90%;max-width:420px;margin:auto;
+  top:50%;transform:translateY(-50%);
+  background:rgba(0,0,0,0.8);
+  border-radius:22px;padding:30px;text-align:center;
+  box-shadow:0 0 45px rgba(229,9,20,.6);
+  animation:float 4s ease-in-out infinite;
+}
+
+.logo{color:#e50914;font-size:2.2rem;font-weight:700}
+#typed{min-height:70px;font-size:1.3rem;margin:15px 0}
+#countdown{font-size:.95rem;color:#ccc;margin-bottom:10px}
+#message{min-height:30px}
+
+button{
+  padding:12px 24px;border-radius:25px;border:none;
+  margin:8px;font-size:1rem;cursor:pointer;
+}
+
+#yesBtn{
+  background:#555;
+  color:#aaa;
+  cursor:not-allowed;
+}
+#yesBtn.unlocked{
+  background:#e50914;
+  color:white;
+  cursor:pointer;
+  animation:pulse 2s infinite;
+}
+
+#noBtn{background:#333;color:white;position:relative}
+.hidden{display:none}
+
+/* SCREENSHOT */
+#flash{
+  position:fixed;inset:0;background:white;
+  opacity:0;z-index:1000;pointer-events:none;
+}
+#toast{
+  position:fixed;
+  bottom:30px;left:50%;
+  transform:translateX(-50%);
+  background:rgba(0,0,0,0.8);
+  padding:10px 18px;
+  border-radius:20px;
+  font-size:.9rem;
+  opacity:0;
+  z-index:1001;
+}
+
+/* EFFECTS */
+canvas,.hearts,.confetti{
+  position:fixed;inset:0;pointer-events:none;
+}
+canvas{z-index:1}.hearts{z-index:2}.confetti{z-index:3}
+
+/* ANIMATIONS */
+@keyframes pulse{50%{transform:scale(1.05)}}
+@keyframes float{50%{transform:translateY(-55%)}}
+@keyframes flashAnim{0%{opacity:1}100%{opacity:0}}
+@keyframes toastAnim{
+  0%{opacity:0;transform:translate(-50%,20px)}
+  20%{opacity:1;transform:translate(-50%,0)}
+  80%{opacity:1}
+  100%{opacity:0;transform:translate(-50%,20px)}
+}
+@keyframes heartFloat{to{transform:translateY(-110vh);opacity:0}}
+@keyframes confettiFall{to{transform:translateY(110vh) rotate(360deg)}}
+</style>
+</head>
+
+<body>
+
+<div id="flash"></div>
+<div id="toast">📸 Screenshot taken</div>
+
+<canvas id="fireworks"></canvas>
+<div class="hearts" id="hearts"></div>
+<div class="confetti" id="confetti"></div>
+
+<div class="card" id="card">
+  <div class="logo">FUN With Kush</div>
+  <div id="typed"></div>
+  <div id="countdown"></div>
+  <div id="message"></div>
+  <button id="yesBtn" onclick="yesClicked()">YES 💖</button>
+  <button id="noBtn" onclick="noClicked()">NO 🙄</button>
+</div>
+
+<!-- MUSIC -->
+<audio id="music" loop>
+  <source src="bg.mp3" type="audio/mpeg">
+</audio>
+
+<script>
+/* MUSIC – ANDROID SAFE */
+const music=document.getElementById("music");
+document.addEventListener("click",()=>music.play().catch(()=>{}),{once:true});
+
+/* TYPING */
+const text="Sweta,\nDo you wish to spend\nNew Year 2026 with me? 🎆";
+let ti=0;
+(function type(){
+  if(ti<text.length){
+    typed.innerHTML+=text[ti]=="\n"?"<br>":text[ti];
+    ti++;setTimeout(type,45);
+  }
+})();
+
+/* COUNTDOWN + YES LOCK */
+const yesBtn=document.getElementById("yesBtn");
+function updateCountdown(){
+  const target=new Date("Jan 1, 2026 00:00:00").getTime();
+  const now=Date.now();
+  const diff=target-now;
+
+  if(diff<=0){
+    countdown.textContent="🎆 It’s 2026!";
+    yesBtn.classList.add("unlocked");
+    yesBtn.disabled=false;
+    return;
+  }
+
+  yesBtn.disabled=true;
+  const d=Math.floor(diff/86400000);
+  const h=Math.floor(diff/3600000)%24;
+  const m=Math.floor(diff/60000)%60;
+  const s=Math.floor(diff/1000)%60;
+  countdown.textContent=`⏳ ${d}d ${h}h ${m}m ${s}s left`;
+}
+setInterval(updateCountdown,1000);
+updateCountdown();
+
+/* NO BUTTON */
+let dodge=0,noCount=0;
+const msgs=[
+  "Sachme Sweta? 🥺","Phirse sochlo bbg 👀","Popcorn 🍿",
+  "That hurt 💔","Still no? 😭","Last warning dera hu",
+  "Destiny says no 😤","Illegal move","Say yes 😌","👁️👁️"
+];
+
+noBtn.onmouseenter=()=>{
+  if(dodge<3){
+    dodge++;
+    noBtn.style.transform=`translate(${Math.random()*140-70}px,${Math.random()*140-70}px)`;
+  }
+};
+
+function noClicked(){
+  message.textContent=msgs[noCount]||"";
+  noCount++;
+  noBtn.style.transform=`scale(${1-noCount*.08})`;
+  navigator.vibrate?.(100);
+  if(noCount>10)noBtn.classList.add("hidden");
+}
+
+/* YES CLICK */
+function yesClicked(){
+  if(!yesBtn.classList.contains("unlocked")){
+    message.textContent="⏳ Wait till 2026 😉";
+    navigator.vibrate?.(150);
+    return;
+  }
+
+  screenshot();
+  navigator.vibrate?.([200,100,200]);
+
+  card.innerHTML=`
+    <div class="logo">FUN With Kush</div>
+    <h2>🎉 Subscription Renewed 🎉</h2>
+    <p>Sweta 💖<br><br>Status: <b style="color:#0f0">ACTIVE</b></p>
+  `;
+  startFireworks();hearts();confetti();
+}
+
+/* SCREENSHOT */
+function screenshot(){
+  flash.style.animation="flashAnim .4s";
+  toast.style.animation="toastAnim 2.5s";
+  setTimeout(()=>{
+    flash.style.animation="";
+    toast.style.animation="";
+  },2500);
+}
+
+/* FIREWORKS */
+const ctx=fireworks.getContext("2d");
+fireworks.width=innerWidth;fireworks.height=innerHeight;
+let sparks=[];
+function startFireworks(){
+  setInterval(()=>sparks.push({
+    x:Math.random()*fireworks.width,
+    y:fireworks.height,
+    r:0,c:`hsl(${Math.random()*360},100%,60%)`
+  }),250);
+}
+(function anim(){
+  ctx.clearRect(0,0,fireworks.width,fireworks.height);
+  sparks.forEach((s,i)=>{
+    ctx.beginPath();ctx.arc(s.x,s.y,s.r,0,Math.PI*2);
+    ctx.fillStyle=s.c;ctx.fill();
+    s.y-=4;s.r+=.8;
+    if(s.r>15)sparks.splice(i,1);
+  });
+  requestAnimationFrame(anim);
+})();
+
+/* HEARTS */
+function hearts(){
+  setInterval(()=>{
+    const h=document.createElement("div");
+    h.innerHTML="💖";
+    h.style.position="absolute";
+    h.style.left=Math.random()*100+"%";
+    h.style.bottom="0";
+    h.style.animation="heartFloat 4s linear";
+    heartsDiv.appendChild(h);
+    setTimeout(()=>h.remove(),4000);
+  },300);
+}
+
+/* CONFETTI */
+function confetti(){
+  for(let i=0;i<120;i++){
+    const c=document.createElement("div");
+    c.style.position="absolute";
+    c.style.width="6px";c.style.height="12px";
+    c.style.background=`hsl(${Math.random()*360},100%,50%)`;
+    c.style.left=Math.random()*100+"%";
+    c.style.top="-10px";
+    c.style.animation=`confettiFall ${3+Math.random()*3}s linear`;
+    confettiDiv.appendChild(c);
+    setTimeout(()=>c.remove(),6000);
+  }
+}
+
+const heartsDiv=document.getElementById("hearts");
+const confettiDiv=document.getElementById("confetti");
+</script>
+
+</body>
+</html>
