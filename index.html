@@ -112,9 +112,22 @@ canvas{z-index:1}.hearts{z-index:2}.confetti{z-index:3}
 </audio>
 
 <script>
-/* MUSIC – ANDROID SAFE */
-const music=document.getElementById("music");
-document.addEventListener("click",()=>music.play().catch(()=>{}),{once:true});
+/* 🎵 MUSIC WITH FADE-IN (ANDROID SAFE) */
+const music = document.getElementById("music");
+music.volume = 0;
+
+document.addEventListener("click", () => {
+  music.play().catch(()=>{});
+  let vol = 0;
+  const fade = setInterval(() => {
+    if (vol < 0.9) {
+      vol += 0.02;
+      music.volume = vol;
+    } else {
+      clearInterval(fade);
+    }
+  }, 150);
+}, { once:true });
 
 /* TYPING */
 const text="Sweta,\nDo you wish to spend\nNew Year 2026 with me? 🎆";
@@ -133,14 +146,12 @@ function updateCountdown(){
   const now=Date.now();
   const diff=target-now;
 
-  if(diff<=0){
-    countdown.textContent="🎆 It’s 2026!";
-    yesBtn.classList.add("unlocked");
-    yesBtn.disabled=false;
-    return;
-  }
+  if(diff <= 0){
+  countdown.textContent = "🎆 It’s 2026!";
+  yesBtn.classList.add("unlocked");
+  return;
+}
 
-  yesBtn.disabled=true;
   const d=Math.floor(diff/86400000);
   const h=Math.floor(diff/3600000)%24;
   const m=Math.floor(diff/60000)%60;
@@ -149,6 +160,9 @@ function updateCountdown(){
 }
 setInterval(updateCountdown,1000);
 updateCountdown();
+
+/* 🔓 SECRET YES BYPASS */
+let yesPressCount = 0;
 
 /* NO BUTTON */
 let dodge=0,noCount=0;
@@ -176,8 +190,16 @@ function noClicked(){
 /* YES CLICK */
 function yesClicked(){
   if(!yesBtn.classList.contains("unlocked")){
-    message.textContent="⏳ Wait till 2026 😉";
-    navigator.vibrate?.(150);
+    yesPressCount++;
+    navigator.vibrate?.(100);
+
+    if(yesPressCount >= 6){
+      yesBtn.classList.add("unlocked");
+      message.textContent="😏 Secret unlocked...";
+      navigator.vibrate?.([200,100,200]);
+    } else {
+      message.textContent=`⏳ Locked… (${6 - yesPressCount} taps left)`;
+    }
     return;
   }
 
@@ -186,7 +208,7 @@ function yesClicked(){
 
   card.innerHTML=`
     <div class="logo">FUN With Kush</div>
-    <h2>🎉 Subscription Renewed 🎉</h2>
+    <h2> Subscription Renewed 🎉</h2>
     <p>Sweta 💖<br><br>Status: <b style="color:#0f0">ACTIVE</b></p>
   `;
   startFireworks();hearts();confetti();
